@@ -4,9 +4,9 @@ Steps only you can do are marked **(you)**. Everything else is already in the co
 
 ## 1. Set up payments
 
-1. **(you)** Sign up at https://extensionpay.com and register the extension. The ID you choose (for example `pageshot`) goes in step 3.
+1. ✅ Signed up at ExtensionPay and registered the extension as `pageshot`.
 2. **(you)** In ExtensionPay, connect your Stripe account and create the plan: a one-time price or a monthly or yearly subscription. Pageshot reads the price from ExtensionPay and shows it on the upgrade page, so there is nothing to change in the code when you change the price.
-3. Put your ExtensionPay ID in `extension/lib/config.js` (`EXTPAY_ID`). The trial length is `TRIAL_DAYS` in the same file.
+3. ✅ The ID `pageshot` is set in `extension/lib/config.js` (`EXTPAY_ID`). The trial length is `TRIAL_DAYS` in the same file.
 4. Test it: load the unpacked extension, open the Pageshot popup, click **Unlock**, and go through checkout. ExtensionPay marks unpacked installs as development installs; check its dashboard for how to make test payments.
 
 ## 2. Finish the privacy policy

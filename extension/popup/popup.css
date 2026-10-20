@@ -19,6 +19,7 @@
     --error-fg: #f6aea9;
   }
 }
+[hidden] { display: none !important; }
 body { width: 260px; margin: 0; font: 13px/1.4 system-ui, sans-serif; color: var(--fg); background: var(--bg); }
 header { display: flex; align-items: center; gap: 8px; padding: 12px 14px 8px; font-weight: 600; font-size: 14px; }
 nav { display: flex; flex-direction: column; padding: 4px 6px 8px; }
@@ -33,3 +34,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: var(--accent); stroke-width
 kbd { font: 11px system-ui, sans-serif; color: var(--muted); }
 .error { margin: 0 12px 6px; padding: 8px 10px; border-radius: 6px; background: var(--error-bg); color: var(--error-fg); }
 .working { margin: 0 14px 12px; color: var(--muted); }
+.plan { display: flex; justify-content: space-between; gap: 8px; padding: 9px 14px; border-top: 1px solid var(--hover); color: var(--muted); font-size: 12px; }
+.plan.expired { color: var(--error-fg); background: var(--error-bg); border-top: 0; }
+.plan a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.plan a:hover { text-decoration: underline; }

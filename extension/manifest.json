@@ -22,19 +22,42 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "permissions": ["activeTab", "scripting", "downloads", "desktopCapture", "storage"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads",
+    "desktopCapture",
+    "storage"
+  ],
   "commands": {
     "capture-visible": {
-      "suggested_key": { "default": "Alt+Shift+V" },
+      "suggested_key": {
+        "default": "Alt+Shift+V"
+      },
       "description": "Capture the visible part of the tab"
     },
     "capture-full": {
-      "suggested_key": { "default": "Alt+Shift+F" },
+      "suggested_key": {
+        "default": "Alt+Shift+F"
+      },
       "description": "Capture the full scrolling page"
     },
     "capture-region": {
-      "suggested_key": { "default": "Alt+Shift+R" },
+      "suggested_key": {
+        "default": "Alt+Shift+R"
+      },
       "description": "Capture a selected region"
     }
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://extensionpay.com/*"
+      ],
+      "js": [
+        "vendor/ExtPay.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
 }

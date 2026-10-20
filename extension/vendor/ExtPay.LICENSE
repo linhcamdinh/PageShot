@@ -1,0 +1,4 @@
+ExtPay 3.1.2 by ExtensionPay.com, https://github.com/Glench/ExtPay
+Licensed under LGPL-3.0 (per the package LICENSE file).
+ExtPay.js is the unmodified dist build. ExtPay.module.js is the same file with
+`export default ExtPay;` appended so the module service worker can import it.

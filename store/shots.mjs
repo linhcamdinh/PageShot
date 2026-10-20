@@ -1,0 +1,43 @@
+// Generates the Web Store screenshots. Run from store/: node shots.mjs && node compose.mjs (needs Playwright).
+import { chromium } from 'playwright';
+import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
+const dir = process.cwd(); const extSrc = path.resolve(dir, '../extension');
+const ext = path.join(dir, 'ext'); fs.rmSync(ext, { recursive: true, force: true }); fs.cpSync(extSrc, ext, { recursive: true });
+const mf = JSON.parse(fs.readFileSync(path.join(ext, 'manifest.json'))); mf.host_permissions = ['<all_urls>']; fs.writeFileSync(path.join(ext, 'manifest.json'), JSON.stringify(mf));
+const srv = http.createServer((q, r) => { r.setHeader('content-type', 'text/html'); r.end(fs.readFileSync('demo.html')); }).listen(8770);
+const ctx = await chromium.launchPersistentContext('', { channel: 'chromium', headless: true, viewport: { width: 1280, height: 800 }, args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`] });
+let sw = ctx.serviceWorkers().find((w) => w.url().startsWith('chrome-extension://')); if (!sw) sw = await ctx.waitForEvent('serviceworker', { predicate: (w) => w.url().startsWith('chrome-extension://') });
+await new Promise((r) => setTimeout(r, 500));
+const id = sw.url().split('/')[2];
+await sw.evaluate(() => chrome.storage.local.set({ paidCache: { paid: true, checkedAt: Date.now() } }));
+await new Promise((r) => setTimeout(r, 800));
+for (const p of ctx.pages()) if (p.url().includes('upgrade')) await p.close();
+const page = await ctx.newPage(); await page.goto('http://localhost:8770/'); await page.waitForTimeout(300);
+// 1. page with popup composited on top
+const pop = await ctx.newPage();
+await pop.goto(`chrome-extension://${id}/popup/popup.html`); await pop.waitForTimeout(300);
+await page.bringToFront(); await page.screenshot({ path: 'page.png' });
+const tab = await sw.evaluate(async () => (await chrome.tabs.query({ url: 'http://localhost:8770/*' }))[0]);
+const edP = ctx.waitForEvent('page', { predicate: (p) => p.url().includes('editor.html') });
+await pop.evaluate((tab) => chrome.runtime.sendMessage({ type: 'capture', mode: 'visible', tab }), tab);
+const ed = await edP; await ed.setViewportSize({ width: 1280, height: 800 });
+await ed.waitForFunction(() => window.pageshotEditor?.base); await ed.waitForTimeout(300);
+const box = await ed.locator('#canvas').boundingBox(); const z = await ed.evaluate(() => window.pageshotEditor.zoom);
+const at = (x, y) => [box.x + x * z, box.y + y * z];
+async function drag(tool, a, b) { await ed.click(`.tool[data-tool=${tool}]`); await ed.mouse.move(...at(...a)); await ed.mouse.down(); await ed.mouse.move(...at(...b), { steps: 6 }); await ed.mouse.up(); }
+const coords = await page.evaluate(() => { const r = (sel, i = 0) => document.querySelectorAll(sel)[i].getBoundingClientRect().toJSON(); return { key: r('.k'), btn: r('.btn'), big: r('.card div[style*="40px"]'), chart: r('#c') }; });
+const k = coords.key; await drag('blur', [k.x - 4, k.y - 4], [k.right + 4, k.bottom + 4]);
+await ed.click('.tool[data-tool=arrow]'); await ed.click('.swatch[data-color="#e53935"]');
+const bt = coords.btn; await drag('arrow', [bt.x - 60, bt.bottom + 110], [bt.x + 20, bt.bottom + 12]);
+await drag('rect', [bt.x - 8, bt.y - 8], [bt.right + 8, bt.bottom + 8]);
+const bg = coords.big; await drag('highlighter', [bg.x, bg.bottom - 6], [bg.x + 300, bg.bottom - 6]);
+await ed.click('.tool[data-tool=step]'); await ed.mouse.click(...at(coords.chart.right - 10, coords.chart.y + 14));
+await ed.click('.tool[data-tool=text]'); await ed.mouse.click(...at(bt.x - 260, bt.bottom + 140));
+await ed.click('#text-bg'); await ed.locator('#text-input').focus(); await ed.keyboard.type('Ask finance before upgrading'); await ed.keyboard.press('Control+Enter');
+await ed.click('.tool[data-tool=select]'); await ed.keyboard.press('Escape');
+await ed.click('.tool[data-tool=text]');
+await ed.waitForTimeout(300); await ed.screenshot({ path: 'shot-editor.png' });
+await ed.click('#save-settings'); await ed.click('[data-format=jpeg]'); await ed.waitForTimeout(200);
+await ed.screenshot({ path: 'shot-save.png' });
+await pop.setViewportSize({ width: 260, height: 214 }); await pop.bringToFront(); await pop.screenshot({ path: 'popup.png' });
+await ctx.close(); srv.close();

@@ -1,5 +1,21 @@
 import { saveCapture } from './lib/store.js';
 import { captureFullPage } from './lib/fullpage.js';
+import { extpay, getStatus, markPaid, trialStartedAt } from './lib/license.js';
+
+// ExtensionPay listens for messages from its payment pages.
+extpay.startBackground();
+extpay.onPaid.addListener(async () => {
+  await markPaid();
+  chrome.runtime.sendMessage({ type: 'paid' }).catch(() => {}); // refresh any open upgrade page
+});
+
+const upgradeUrl = (reason) => chrome.runtime.getURL(`upgrade/upgrade.html?reason=${reason}`);
+
+chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+  if (reason !== 'install') return;
+  await trialStartedAt(); // starts the trial clock
+  chrome.tabs.create({ url: upgradeUrl('welcome') });
+});
 
 // Chrome allows about two captureVisibleTab calls per second.
 const CAPTURE_GAP_MS = 550;
@@ -37,6 +53,11 @@ async function openEditor(blob, meta) {
 }
 
 async function runCapture(mode, tab) {
+  const status = await getStatus();
+  if (status.state === 'expired') {
+    await chrome.tabs.create({ url: upgradeUrl('expired') });
+    return;
+  }
   switch (mode) {
     case 'visible': {
       const dataUrl = await captureVisible(tab.windowId);
@@ -107,6 +128,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       () => sendResponse({ ok: true }),
       (err) => reportError(err).then(() => sendResponse({ ok: false, error: friendlyError(err) })),
     );
+    return true;
+  }
+  if (msg.type === 'status') {
+    getStatus({ refresh: msg.refresh }).then(sendResponse);
     return true;
   }
   if (msg.type === 'region-selected' && sender.tab) {

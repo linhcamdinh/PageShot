@@ -38,6 +38,12 @@ Pick **PNG** (lossless, best for text and UI) or **JPEG** (smaller, with a quali
 
 Pageshot remembers these choices. After saving, a message shows the file name and size with a **Show in folder** link. Copy always puts a PNG on the clipboard.
 
+## Free trial and purchase
+
+Every feature is free for 7 days from install, with no sign up. The popup shows the days left. When the trial ends, capturing opens the upgrade page instead, where people buy through [ExtensionPay](https://extensionpay.com) (Stripe checkout) or restore an earlier purchase. The paid status is cached, so Pageshot keeps working offline.
+
+Set your ExtensionPay ID and the trial length in `extension/lib/config.js`. The price is set in the ExtensionPay dashboard. See [store/PUBLISHING.md](store/PUBLISHING.md) for the full launch checklist.
+
 ## Try it
 
 1. Open `chrome://extensions` and turn on **Developer mode**.
@@ -55,10 +61,15 @@ Pageshot remembers these choices. After saving, a message shows the file name an
 - `npm run icons` regenerates the icons.
 - `npm test` runs Playwright tests of the capture modes and the editor.
 - `npm run zip` builds `dist/pageshot.zip` for the Web Store.
+- `npm run store-images` regenerates the Web Store screenshots and promo tile.
+
+## Third-party code
+
+`extension/vendor/` holds ExtPay 3.1.2 by ExtensionPay (LGPL-3.0); see `vendor/ExtPay.LICENSE`.
 
 ## Roadmap
 
 1. ✅ Capture core
 2. ✅ Annotation editor: text, arrows, shapes, blur, fonts and colors
 3. ✅ Export: PNG and JPEG to a folder you choose
-4. 7 day free trial and in-app purchase (ExtensionPay), then Web Store launch
+4. ✅ 7 day free trial and in-app purchase (ExtensionPay); Web Store listing, privacy policy and images in `store/`

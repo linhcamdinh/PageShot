@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pageshot</title>
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="upgrade.css">
+</head>
+<body>
+  <main>
+    <img class="logo" src="../icons/icon128.png" alt="" width="64" height="64">
+
+    <section data-view="welcome" hidden>
+      <h1>Welcome to Pageshot</h1>
+      <p class="lead">Your <strong id="trial-days">7 day</strong> free trial has started. Every feature is included, no sign up needed.</p>
+      <ol class="steps">
+        <li><strong>Pin Pageshot.</strong> Click the puzzle icon in Chrome's toolbar, then the pin next to Pageshot.</li>
+        <li><strong>Capture.</strong> Click the Pageshot button and pick visible part, full page, select area, or screen or window.</li>
+        <li><strong>Annotate and save.</strong> Add arrows, text, shapes and blur, then save as PNG or JPEG.</li>
+      </ol>
+      <p class="muted">Shortcuts: Alt+Shift+V visible part, Alt+Shift+F full page, Alt+Shift+R select area.</p>
+    </section>
+
+    <section data-view="trial" hidden>
+      <h1>Unlock Pageshot</h1>
+      <p class="lead"><span id="days-left"></span> left in your free trial. Buy now to keep capturing after it ends.</p>
+    </section>
+
+    <section data-view="expired" hidden>
+      <h1>Your free trial has ended</h1>
+      <p class="lead">Thanks for trying Pageshot. Unlock it to keep capturing, annotating and saving screenshots.</p>
+    </section>
+
+    <section data-view="paid" hidden>
+      <h1>Pageshot is unlocked</h1>
+      <p class="lead">Thank you for your purchase. Every feature is yours, with no limits.</p>
+    </section>
+
+    <div class="buy" id="buy" hidden>
+      <ul class="features">
+        <li>Visible, full page, area and screen capture</li>
+        <li>Arrows, shapes, text, highlighter, steps and blur</li>
+        <li>PNG and JPEG export to any folder</li>
+        <li>Everything stays on your computer</li>
+      </ul>
+      <p class="price" id="price" hidden></p>
+      <button id="pay" class="primary">Unlock Pageshot</button>
+      <button id="login" class="link">Already paid? Restore your purchase</button>
+      <p class="error" id="error" hidden></p>
+    </div>
+  </main>
+  <script type="module" src="upgrade.js"></script>
+</body>
+</html>

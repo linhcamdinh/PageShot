@@ -26,10 +26,10 @@ async function run(mode){
   const p = ctx.waitForEvent('page', {predicate: pg=>pg.url().includes('editor.html'), timeout:30000});
   const res = await helper.evaluate(([mode,tab])=>chrome.runtime.sendMessage({type:'capture',mode,tab}), [mode,tab]);
   console.log(mode,'response',JSON.stringify(res));
-  const ed = await p; await ed.waitForFunction(()=>document.getElementById('shot').naturalWidth>0);
+  const ed = await p; await ed.waitForFunction(()=>window.pageshotEditor?.base); await ed.waitForTimeout(100);
   console.log(mode, await ed.locator('#meta').textContent(), 'notice hidden:', await ed.locator('#notice').isHidden());
   await ed.screenshot({path:`ed-${mode}.png`, fullPage:true});
-  const data = await ed.evaluate(async()=>{const i=document.getElementById('shot');const c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;c.getContext('2d').drawImage(i,0,0);return c.toDataURL()});
+  const data = await ed.evaluate(()=>document.getElementById('canvas').toDataURL());
   fs.writeFileSync(`out-${mode}.png`, Buffer.from(data.split(',')[1],'base64'));
   await ed.close(); await page.bringToFront();
 }
@@ -41,9 +41,9 @@ const p = ctx.waitForEvent('page', {predicate: pg=>pg.url().includes('editor.htm
 await helper.evaluate((tab)=>chrome.runtime.sendMessage({type:'capture',mode:'region',tab}), tab);
 await page.bringToFront(); await page.waitForTimeout(300);
 await page.mouse.move(100,100); await page.mouse.down(); await page.mouse.move(400,300,{steps:5}); await page.mouse.up();
-const ed = await p; await ed.waitForFunction(()=>document.getElementById('shot').naturalWidth>0);
+const ed = await p; await ed.waitForFunction(()=>window.pageshotEditor?.base); await ed.waitForTimeout(100);
 console.log('region', await ed.locator('#meta').textContent());
-const data = await ed.evaluate(async()=>{const i=document.getElementById('shot');const c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;c.getContext('2d').drawImage(i,0,0);return c.toDataURL()});
+const data = await ed.evaluate(()=>document.getElementById('canvas').toDataURL());
 fs.writeFileSync(`out-region.png`, Buffer.from(data.split(',')[1],'base64'));
 // restricted page error
 const res = await helper.evaluate(async()=>{const t=await chrome.tabs.create({url:'chrome://version',active:true}); await new Promise(r=>setTimeout(r,800)); return chrome.runtime.sendMessage({type:'capture',mode:'full',tab:t})});

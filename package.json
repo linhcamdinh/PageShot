@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "icons": "node scripts/make-icons.mjs",
-    "test": "node tests/capture.test.mjs && node tests/editor.e2e.mjs && node tests/export.e2e.mjs",
-    "zip": "mkdir -p dist && cd extension && zip -qr ../dist/pageshot.zip ."
+    "test": "node tests/capture.test.mjs && node tests/editor.e2e.mjs && node tests/export.e2e.mjs && node tests/license.e2e.mjs",
+    "zip": "mkdir -p dist && cd extension && zip -qr ../dist/pageshot.zip .",
+    "store-images": "cd store && node shots.mjs && node compose.mjs && mv store-*.png promo-*.png assets/"
   },
   "devDependencies": {
     "playwright": "^1.56.1"

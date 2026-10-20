@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Dashboard · Brightline</title><style>
+body{margin:0;font:16px/1.5 system-ui,sans-serif;color:#1f2937;background:#f3f4f6}
+nav{display:flex;align-items:center;gap:28px;padding:16px 40px;background:#fff;border-bottom:1px solid #e5e7eb}
+nav b{font-size:20px;color:#4f46e5;margin-right:auto} nav span{color:#6b7280}
+.wrap{max-width:1000px;margin:32px auto;display:grid;grid-template-columns:1.2fr 1fr;gap:28px;padding:0 24px}
+.card{background:#fff;border-radius:14px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+h1{margin:0 0 6px;font-size:30px} .muted{color:#6b7280}
+.chart{height:200px;margin-top:20px;border-radius:10px;background:linear-gradient(180deg,#eef2ff,#fff);position:relative;overflow:hidden}
+.bar{position:absolute;bottom:0;width:34px;border-radius:6px 6px 0 0;background:#6366f1}
+.row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f1f5f9}
+.btn{display:inline-block;margin-top:18px;padding:12px 22px;border-radius:10px;background:#4f46e5;color:#fff;font-weight:600}
+.k{font-family:ui-monospace,monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px}
+</style></head><body>
+<nav><b>Brightline Analytics</b><span>Dashboard</span><span>Reports</span><span>Billing</span><span>Settings</span></nav>
+<div class="wrap">
+ <div class="card"><h1>Monthly revenue</h1><div class="muted">October 2026 · all regions</div>
+  <div style="font-size:40px;font-weight:700;margin-top:14px">$48,920 <span style="font-size:16px;color:#16a34a">▲ 12.4%</span></div>
+  <div class="chart" id="c"></div></div>
+ <div class="card"><h2 style="margin:0 0 8px">Account</h2>
+  <div class="row"><span>Owner</span><span>Morgan Lee</span></div>
+  <div class="row"><span>Email</span><span>morgan@brightline.test</span></div>
+  <div class="row"><span>API key</span><span class="k">nw_live_8f3k29dk20slq</span></div>
+  <div class="row"><span>Plan</span><span>Team, 12 seats</span></div>
+  <span class="btn">Upgrade plan</span></div>
+</div>
+<script>const c=document.getElementById('c');[40,55,48,70,62,85,78,96,90,120,110,140].forEach((h,i)=>{const b=document.createElement('div');b.className='bar';b.style.left=(16+i*44)+'px';b.style.height=h+'px';c.appendChild(b)})</script>
+</body></html>

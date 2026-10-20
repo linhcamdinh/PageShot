@@ -1,6 +1,7 @@
 const errorBox = document.getElementById('error');
 const working = document.getElementById('working');
 const buttons = document.querySelectorAll('button[data-mode]');
+const $plan = document.getElementById('plan');
 
 function showError(text) {
   errorBox.textContent = text;
@@ -12,6 +13,22 @@ chrome.storage.session.get('lastError').then(({ lastError }) => {
   if (lastError) showError(lastError);
   chrome.storage.session.remove('lastError');
   chrome.action.setBadgeText({ text: '' });
+});
+
+// Trial and purchase status in the footer.
+chrome.runtime.sendMessage({ type: 'status' }).then((status) => {
+  if (!status || status.state === 'paid') return;
+  const expired = status.state === 'expired';
+  $plan.hidden = false;
+  $plan.classList.toggle('expired', expired);
+  document.getElementById('plan-text').textContent = expired
+    ? 'Your free trial has ended.'
+    : `Free trial: ${status.daysLeft === 1 ? '1 day' : `${status.daysLeft} days`} left`;
+});
+document.getElementById('plan-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  chrome.tabs.create({ url: chrome.runtime.getURL('upgrade/upgrade.html?reason=popup') });
+  window.close();
 });
 
 for (const button of buttons) {

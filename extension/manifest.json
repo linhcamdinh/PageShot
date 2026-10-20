@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Pageshot",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Capture visible tabs, full scrolling pages, selected regions or your whole screen.",
   "minimum_chrome_version": "116",
   "icons": {

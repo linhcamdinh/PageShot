@@ -42,4 +42,4 @@ Uninstalling Pageshot removes all of its local data. To delete your purchase rec
 
 ## Contact
 
-Questions about this policy: CONTACT_EMAIL
+Questions about this policy or Pageshot: [nxuanquyen2211@gmail.com](mailto:nxuanquyen2211@gmail.com)

@@ -11,7 +11,7 @@ Steps only you can do are marked **(you)**. Everything else is already in the co
 
 ## 2. Finish the privacy policy
 
-1. **(you)** Replace `CONTACT_EMAIL` in `store/privacy-policy.md` with a support email.
+1. ✅ Support email added to `store/privacy-policy.md`.
 2. **(you)** Publish it at a public URL. Easiest: make the GitHub repo public (or a separate public repo with just this file) and use the file's GitHub link, or turn on GitHub Pages.
 
 ## 3. Build the package

@@ -28,6 +28,16 @@ Each capture opens in the editor. Capture shortcuts can be changed at `chrome://
 
 Every tool uses the color swatches or a custom color, plus a size slider. Changing a style while a shape is selected restyles it. Undo and redo with Ctrl+Z and Ctrl+Shift+Z, delete with Del, zoom with Ctrl+wheel or Ctrl+= and Ctrl+-. Ctrl+C copies and Ctrl+S saves the annotated image.
 
+## Saving
+
+Pick **PNG** (lossless, best for text and UI) or **JPEG** (smaller, with a quality slider from 40 to 100) next to the Save button. The gear menu holds the save options:
+
+- **Ask where to save each time** (on by default) opens the Save As dialog so you can choose any folder.
+- With it off, files go straight to a folder inside Downloads (default `Downloads/Pageshot`).
+- **File name** defaults to the date, time and page title.
+
+Pageshot remembers these choices. After saving, a message shows the file name and size with a **Show in folder** link. Copy always puts a PNG on the clipboard.
+
 ## Try it
 
 1. Open `chrome://extensions` and turn on **Developer mode**.
@@ -50,5 +60,5 @@ Every tool uses the color swatches or a custom color, plus a size slider. Changi
 
 1. ✅ Capture core
 2. ✅ Annotation editor: text, arrows, shapes, blur, fonts and colors
-3. Export: PNG and JPEG to a folder you choose
+3. ✅ Export: PNG and JPEG to a folder you choose
 4. 7 day free trial and in-app purchase (ExtensionPay), then Web Store launch

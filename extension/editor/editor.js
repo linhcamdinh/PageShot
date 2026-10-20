@@ -2,6 +2,7 @@ import { getCapture } from '../lib/store.js';
 import {
   FONTS, bounds, drawAll, drawShape, flatten, fontString, hitTest, isBox, isLine, normBox, textLayout, translate,
 } from './shapes.js';
+import { DEFAULT_SETTINGS, cleanName, defaultBaseName, downloadPath, encode, formatBytes } from './export.js';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('canvas');
@@ -682,34 +683,143 @@ document.addEventListener('keydown', (e) => {
 
 // ---------- export ----------
 
-function fileName(ext) {
-  const stamp = new Date(state.capture.createdAt).toISOString().slice(0, 19).replace('T', ' ').replace(/:/g, '-');
-  const base = (state.capture.title || 'screenshot').replace(/[\\/:*?"<>|]+/g, ' ').trim().slice(0, 80) || 'screenshot';
-  return `Pageshot ${stamp} ${base}.${ext}`;
+const exportSettings = { ...DEFAULT_SETTINGS };
+let fileBaseName = '';
+let lastDownloadId = null;
+const pendingDownloads = new Map(); // download id -> history index and size at save time
+
+function loadExportSettings(saved) {
+  Object.assign(exportSettings, saved);
+  syncExportControls();
 }
 
-async function exportBlob(type = 'image/png') {
+function saveExportSettings() {
+  chrome.storage.local.set({ exportSettings }).catch(() => {});
+}
+
+function syncExportControls() {
+  document.querySelectorAll('[data-format]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.format === exportSettings.format)));
+  $('quality-ctl').hidden = exportSettings.format !== 'jpeg';
+  $('quality').value = exportSettings.quality;
+  $('quality-value').textContent = exportSettings.quality;
+  $('ask-location').checked = exportSettings.askLocation;
+  $('folder').value = exportSettings.folder;
+  $('folder').disabled = exportSettings.askLocation;
+  $('folder-field').classList.toggle('disabled', exportSettings.askLocation);
+  $('save').textContent = `Save ${exportSettings.format === 'jpeg' ? 'JPEG' : 'PNG'}`;
+  $('filename').value = fileBaseName;
+}
+
+document.querySelectorAll('[data-format]').forEach((b) =>
+  b.addEventListener('click', () => {
+    exportSettings.format = b.dataset.format;
+    saveExportSettings();
+    syncExportControls();
+  }),
+);
+$('quality').addEventListener('input', (e) => {
+  exportSettings.quality = Number(e.target.value);
+  $('quality-value').textContent = e.target.value;
+});
+$('quality').addEventListener('change', saveExportSettings);
+$('ask-location').addEventListener('change', (e) => {
+  exportSettings.askLocation = e.target.checked;
+  saveExportSettings();
+  syncExportControls();
+});
+$('folder').addEventListener('change', (e) => {
+  exportSettings.folder = e.target.value.trim();
+  saveExportSettings();
+});
+$('filename').addEventListener('change', (e) => {
+  fileBaseName = cleanName(e.target.value) || defaultBaseName(state.capture);
+  e.target.value = fileBaseName;
+});
+
+function toggleMenu(open = $('save-menu').hidden) {
+  $('save-menu').hidden = !open;
+  $('save-settings').setAttribute('aria-expanded', String(open));
+}
+$('save-settings').addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleMenu();
+});
+document.addEventListener('pointerdown', (e) => {
+  if (!$('save-menu').hidden && !e.target.closest('.menu-wrap')) toggleMenu(false);
+});
+$('save-menu').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') toggleMenu(false);
+});
+
+async function exportBlob(format = 'png') {
   if (state.editingText) finishText();
-  return flatten(state.base, state.shapes).convertToBlob({ type });
+  return encode(flatten(state.base, state.shapes), format, exportSettings.quality);
 }
 
 async function save() {
   if (!state.base) return;
-  const url = URL.createObjectURL(await exportBlob());
+  toggleMenu(false);
+  const { format, askLocation, folder } = exportSettings;
+  const blob = await exportBlob(format);
+  const url = URL.createObjectURL(blob);
   try {
-    await chrome.downloads.download({ url, filename: fileName('png'), saveAs: true });
-    state.savedIndex = state.historyIndex;
+    const filename = downloadPath(fileBaseName, format, askLocation ? '' : folder);
+    lastDownloadId = await chrome.downloads.download({
+      url,
+      filename,
+      saveAs: askLocation,
+      conflictAction: 'uniquify',
+    });
+    pendingDownloads.set(lastDownloadId, { index: state.historyIndex, size: blob.size });
+    // Small files can finish before the listener knows the id.
+    const [item] = await chrome.downloads.search({ id: lastDownloadId });
+    if (item?.state === 'complete') onDownloadChanged({ id: item.id, state: { current: 'complete' } });
+  } catch (err) {
+    showToast(`Could not save: ${err.message}`);
   } finally {
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 }
 
+// Report the outcome once Chrome finishes writing (or the person cancels the Save As dialog).
+async function onDownloadChanged(delta) {
+  const pending = pendingDownloads.get(delta.id);
+  if (!pending) return;
+  if (delta.state?.current === 'complete') {
+    pendingDownloads.delete(delta.id);
+    state.savedIndex = pending.index;
+    const [item] = await chrome.downloads.search({ id: delta.id });
+    const name = item?.filename?.split(/[\\/]/).pop() || 'screenshot';
+    showToast(`Saved ${name} (${formatBytes(item?.fileSize || pending.size)})`, delta.id);
+  } else if (delta.error) {
+    pendingDownloads.delete(delta.id);
+    if (delta.error.current !== 'USER_CANCELED') showToast(`Could not save: ${delta.error.current}`);
+  }
+}
+chrome.downloads.onChanged.addListener(onDownloadChanged);
+
+let toastTimer;
+function showToast(text, downloadId) {
+  $('toast-text').textContent = text;
+  $('toast-show').hidden = downloadId == null;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => ($('toast').hidden = true), 6000);
+}
+$('toast-show').addEventListener('click', () => {
+  if (lastDownloadId != null) chrome.downloads.show(lastDownloadId);
+});
+
 async function copy() {
   if (!state.base) return;
-  await navigator.clipboard.write([new ClipboardItem({ 'image/png': exportBlob() })]);
-  const b = $('copy');
-  b.textContent = 'Copied';
-  setTimeout(() => (b.textContent = 'Copy'), 1500);
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': exportBlob('png') })]);
+    const b = $('copy');
+    b.textContent = 'Copied';
+    setTimeout(() => (b.textContent = 'Copy'), 1500);
+  } catch (err) {
+    showToast(`Could not copy: ${err.message}`);
+  }
 }
 
 $('save').addEventListener('click', save);
@@ -732,8 +842,8 @@ function updateMeta() {
 }
 
 async function load() {
-  const { editorStyle } = await chrome.storage.local.get('editorStyle').catch(() => ({}));
-  if (editorStyle) Object.assign(state.style, editorStyle);
+  const stored = await chrome.storage.local.get(['editorStyle', 'exportSettings']).catch(() => ({}));
+  if (stored.editorStyle) Object.assign(state.style, stored.editorStyle);
 
   const id = new URLSearchParams(location.search).get('id');
   state.capture = id && (await getCapture(id));
@@ -742,6 +852,8 @@ async function load() {
     return;
   }
   state.base = await createImageBitmap(state.capture.blob);
+  fileBaseName = defaultBaseName(state.capture);
+  loadExportSettings(stored.exportSettings || {});
   if (state.capture.title) document.title = `Pageshot · ${state.capture.title}`;
   if (state.capture.truncated) showNotice('This page is taller than Chrome can fit in one image, so the bottom was cut off.');
   resizeCanvas();

@@ -87,3 +87,32 @@ main { flex: 1; overflow: auto; padding: 24px; }
   position: absolute; margin: 0; padding: 0; border: 1px dashed var(--accent); outline: none;
   background: transparent; resize: none; overflow: hidden; white-space: pre; transform-origin: 0 0;
 }
+
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.segmented button { height: 30px; padding: 0 10px; border: 0; border-radius: 0; background: none; }
+.segmented button + button { border-left: 1px solid var(--border); }
+.segmented button[aria-checked=true] { color: var(--on-accent); background: var(--accent); }
+.quality { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+#quality { width: 80px; accent-color: var(--accent); }
+#quality-value { min-width: 22px; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+.menu-wrap { position: relative; }
+.menu {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 10; width: 280px; padding: 14px;
+  display: flex; flex-direction: column; gap: 12px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.18);
+}
+.menu .check { display: flex; align-items: center; gap: 8px; }
+.menu .field { display: flex; flex-direction: column; gap: 4px; color: var(--muted); }
+.menu .field input { height: 32px; padding: 0 8px; font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--border); border-radius: 6px; }
+.menu .field.disabled { opacity: .45; }
+.menu .hint { margin: 0; color: var(--muted); font-size: 12px; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 20;
+  display: flex; align-items: center; gap: 12px; max-width: calc(100% - 32px); padding: 8px 8px 8px 16px;
+  color: #fff; background: #202124; border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.3);
+}
+.toast #toast-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toast button { height: 30px; color: #8ab4f8; background: none; border: 0; white-space: nowrap; }
+.toast button:hover { background: rgba(255,255,255,.08) !important; }

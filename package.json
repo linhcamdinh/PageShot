@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "icons": "node scripts/make-icons.mjs",
-    "test": "node tests/capture.test.mjs && node tests/editor.e2e.mjs",
+    "test": "node tests/capture.test.mjs && node tests/editor.e2e.mjs && node tests/export.e2e.mjs",
     "zip": "mkdir -p dist && cd extension && zip -qr ../dist/pageshot.zip ."
   },
   "devDependencies": {

@@ -29,8 +29,37 @@
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M8 11h6M11 8v6"/></svg>
       </button>
       <span class="sep"></span>
+      <div class="segmented" role="radiogroup" aria-label="File format">
+        <button data-format="png" role="radio" aria-checked="true">PNG</button>
+        <button data-format="jpeg" role="radio" aria-checked="false">JPEG</button>
+      </div>
+      <label class="quality" id="quality-ctl" title="JPEG quality: lower makes smaller files" hidden>
+        Quality
+        <input type="range" id="quality" min="40" max="100" step="1" value="92">
+        <output id="quality-value">92</output>
+      </label>
+      <div class="menu-wrap">
+        <button id="save-settings" class="icon" title="Save options" aria-label="Save options" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </button>
+        <div class="menu" id="save-menu" hidden>
+          <label class="check">
+            <input type="checkbox" id="ask-location" checked>
+            Ask where to save each time
+          </label>
+          <label class="field" id="folder-field">
+            Folder inside Downloads
+            <input type="text" id="folder" value="Pageshot" placeholder="Leave empty for Downloads">
+          </label>
+          <label class="field">
+            File name
+            <input type="text" id="filename" spellcheck="false">
+          </label>
+          <p class="hint">Copy always uses PNG, since that is the format the clipboard accepts.</p>
+        </div>
+      </div>
       <button id="copy">Copy</button>
-      <button id="save" class="primary">Save PNG</button>
+      <button id="save" class="primary">Save</button>
     </div>
   </header>
 
@@ -129,6 +158,11 @@
       <textarea id="text-input" spellcheck="false" hidden></textarea>
     </div>
   </main>
+
+  <div class="toast" id="toast" role="status" hidden>
+    <span id="toast-text"></span>
+    <button id="toast-show">Show in folder</button>
+  </div>
 
   <script type="module" src="editor.js"></script>
 </body>

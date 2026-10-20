@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pageshot</title>
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <header>
+    <div class="title">
+      <img src="../icons/icon32.png" alt="" width="20" height="20">
+      <strong>Pageshot</strong>
+      <span id="meta"></span>
+    </div>
+    <div class="actions">
+      <button id="copy">Copy</button>
+      <button id="save" class="primary">Save PNG</button>
+    </div>
+  </header>
+  <div id="notice" class="notice" hidden></div>
+  <main id="stage">
+    <img id="shot" alt="Screenshot">
+  </main>
+  <script type="module" src="editor.js"></script>
+</body>
+</html>

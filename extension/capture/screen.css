@@ -1,0 +1,8 @@
+:root { color-scheme: light dark; --accent: #1a73e8; }
+body { margin: 0; font: 14px/1.5 system-ui, sans-serif; }
+main { padding: 20px 24px; }
+h1 { margin: 0 0 8px; font-size: 18px; }
+p { margin: 0 0 16px; color: GrayText; }
+.row { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+select, button { font: inherit; padding: 6px 10px; border-radius: 6px; }
+button { border: 0; color: #fff; background: var(--accent); cursor: pointer; }

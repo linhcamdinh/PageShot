@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon32.png" alt="" width="20" height="20">
+    <span>Pageshot</span>
+  </header>
+  <div id="error" class="error" hidden></div>
+  <nav>
+    <button data-mode="visible">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+      <span class="label">Visible part</span>
+      <kbd>Alt+Shift+V</kbd>
+    </button>
+    <button data-mode="full">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h6"/></svg>
+      <span class="label">Full page</span>
+      <kbd>Alt+Shift+F</kbd>
+    </button>
+    <button data-mode="region">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4"/></svg>
+      <span class="label">Select area</span>
+      <kbd>Alt+Shift+R</kbd>
+    </button>
+    <button data-mode="screen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span class="label">Screen or window</span>
+      <kbd></kbd>
+    </button>
+  </nav>
+  <p id="working" class="working" hidden>Capturing full page. Keep this tab open…</p>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pageshot: capture screen</title>
+  <link rel="stylesheet" href="screen.css">
+</head>
+<body>
+  <main>
+    <h1>Capture screen</h1>
+    <p id="status">Pick a delay if you need time to set things up, then choose what to capture.</p>
+    <div class="row">
+      <label>
+        Delay
+        <select id="delay">
+          <option value="0">None</option>
+          <option value="3">3 seconds</option>
+          <option value="5">5 seconds</option>
+          <option value="10">10 seconds</option>
+        </select>
+      </label>
+      <button id="pick">Choose screen or window</button>
+    </div>
+  </main>
+  <script type="module" src="screen.js"></script>
+</body>
+</html>

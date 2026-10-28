@@ -28,6 +28,8 @@ Steps only you can do are marked **(you)**. Everything else is already in the co
 
 ## After launch
 
+- **Free users:** adding someone under "free users" in ExtensionPay ties free access to their email, not to their browser. They unlock Pageshot by opening the upgrade page, clicking **Already paid or given free access? Log in with your email**, entering that same email and clicking the link ExtensionPay emails them.
+
 - Each update: bump the version, `npm run zip`, upload on the item's Package tab, submit.
 - Installs, ratings and crash reports are on the item's Analytics tab.
 - Buyers who reinstall or switch computers click **Already paid? Restore your purchase** on the upgrade page.

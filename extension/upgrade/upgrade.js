@@ -42,23 +42,40 @@ function showError(err) {
   $('error').hidden = false;
 }
 
+// After someone opens checkout or the login page, keep asking ExtensionPay for a while.
+// The login link arrives by email and checkout opens in another window, so this page
+// may never lose visibility or get a message when access is granted.
+let pollTimer;
+function watchForAccess() {
+  clearInterval(pollTimer);
+  const stopAt = Date.now() + 10 * 60 * 1000;
+  pollTimer = setInterval(async () => {
+    const status = await getStatus({ refresh: true });
+    if (status.state === 'paid' || Date.now() > stopAt) {
+      clearInterval(pollTimer);
+      if (status.state === 'paid') show('paid');
+    }
+  }, 5000);
+}
+
 $('pay').addEventListener('click', () => {
   $('error').hidden = true;
-  extpay.openPaymentPage().catch(showError);
+  extpay.openPaymentPage().then(watchForAccess, showError);
 });
 $('login').addEventListener('click', () => {
   $('error').hidden = true;
-  extpay.openLoginPage().catch(showError);
+  extpay.openLoginPage().then(watchForAccess, showError);
 });
 
 // The background tells open pages when a payment goes through.
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === 'paid') markPaid().then(() => refresh());
 });
-// Coming back from the payment tab: ask ExtensionPay again.
+// Coming back from the payment tab or window: ask ExtensionPay again.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') refresh({ refresh: true });
 });
+window.addEventListener('focus', () => refresh({ refresh: true }));
 
 $('trial-days').textContent = `${TRIAL_DAYS} day`;
 refresh();

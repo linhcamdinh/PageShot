@@ -3,7 +3,7 @@
 // which keeps the paid flag on its server; the last known answer is cached so Pageshot works offline.
 
 import ExtPay from '../vendor/ExtPay.module.js';
-import { EXTPAY_ID, TRIAL_DAYS } from './config.js';
+import { EXTPAY_ID, PRO_FEATURES, TRIAL_DAYS } from './config.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const CHECK_EVERY_MS = 6 * 60 * 60 * 1000; // how long a cached "paid" answer is trusted before asking again
@@ -39,15 +39,21 @@ async function isPaid({ refresh = false } = {}) {
   }
 }
 
-// { state: 'paid' | 'trial' | 'expired', daysLeft, trialEndsAt }
+// { state: 'paid' | 'trial' | 'free', pro, daysLeft, trialEndsAt }
+// 'free' is the plan after the trial: Pageshot keeps working, without the Pro features.
 export async function getStatus(options) {
-  if (await isPaid(options)) return { state: 'paid' };
+  if (await isPaid(options)) return { state: 'paid', pro: true };
   const trialEndsAt = (await trialStartedAt()) + TRIAL_DAYS * DAY_MS;
   const msLeft = trialEndsAt - Date.now();
-  if (msLeft > 0) return { state: 'trial', daysLeft: Math.ceil(msLeft / DAY_MS), trialEndsAt };
-  return { state: 'expired', daysLeft: 0, trialEndsAt };
+  if (msLeft > 0) return { state: 'trial', pro: true, daysLeft: Math.ceil(msLeft / DAY_MS), trialEndsAt };
+  return { state: 'free', pro: false, daysLeft: 0, trialEndsAt };
 }
 
 export async function markPaid() {
   await chrome.storage.local.set({ paidCache: { paid: true, checkedAt: Date.now() } });
 }
+
+export const isProFeature = (feature) => Object.hasOwn(PRO_FEATURES, feature);
+
+export const upgradeUrl = (reason, feature) =>
+  chrome.runtime.getURL(`upgrade/upgrade.html?reason=${reason}${feature ? `&feature=${feature}` : ''}`);

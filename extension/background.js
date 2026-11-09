@@ -1,6 +1,7 @@
 import { saveCapture } from './lib/store.js';
 import { captureFullPage } from './lib/fullpage.js';
-import { extpay, getStatus, markPaid, trialStartedAt } from './lib/license.js';
+import { extpay, getStatus, isProFeature, markPaid, trialStartedAt, upgradeUrl } from './lib/license.js';
+import { UNINSTALL_URL } from './lib/config.js';
 
 // ExtensionPay listens for messages from its payment pages.
 extpay.startBackground();
@@ -9,7 +10,7 @@ extpay.onPaid.addListener(async () => {
   chrome.runtime.sendMessage({ type: 'paid' }).catch(() => {}); // refresh any open upgrade page
 });
 
-const upgradeUrl = (reason) => chrome.runtime.getURL(`upgrade/upgrade.html?reason=${reason}`);
+if (UNINSTALL_URL) chrome.runtime.setUninstallURL(UNINSTALL_URL).catch(() => {});
 
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   if (reason !== 'install') return;
@@ -54,9 +55,17 @@ async function openEditor(blob, meta) {
 
 async function runCapture(mode, tab) {
   const status = await getStatus();
-  if (status.state === 'expired') {
-    await chrome.tabs.create({ url: upgradeUrl('expired') });
+  if (!status.pro && isProFeature(mode)) {
+    await chrome.tabs.create({ url: upgradeUrl('feature', mode) });
     return;
+  }
+  // The first capture after the trial ends explains the free plan once, then carries on.
+  if (status.state === 'free') {
+    const { trialEndedShown } = await chrome.storage.local.get('trialEndedShown');
+    if (!trialEndedShown) {
+      await chrome.storage.local.set({ trialEndedShown: true });
+      chrome.tabs.create({ url: upgradeUrl('trial-ended'), active: false });
+    }
   }
   switch (mode) {
     case 'visible': {

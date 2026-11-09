@@ -20,16 +20,22 @@
         <li><strong>Annotate and save.</strong> Add arrows, text, shapes and blur, then save as PNG or JPEG.</li>
       </ol>
       <p class="muted">Shortcuts: Alt+Shift+V visible part, Alt+Shift+F full page, Alt+Shift+R select area.</p>
+      <p class="muted" id="welcome-after">After the trial, visible part and area capture with basic markup stay free. Full page, screen capture, blur, steps and JPEG need Pro<span id="welcome-price"></span>.</p>
     </section>
 
     <section data-view="trial" hidden>
-      <h1>Unlock Pageshot</h1>
-      <p class="lead"><span id="days-left"></span> left in your free trial. Buy now to keep capturing after it ends.</p>
+      <h1>Get Pageshot Pro</h1>
+      <p class="lead"><span id="days-left"></span> left in your free trial. Unlock Pro now to keep every feature after it ends.</p>
     </section>
 
-    <section data-view="expired" hidden>
+    <section data-view="free" hidden>
       <h1>Your free trial has ended</h1>
-      <p class="lead">Thanks for trying Pageshot. Unlock it to keep capturing, annotating and saving screenshots.</p>
+      <p class="lead">Pageshot keeps working on the free plan: visible part and area capture, arrows, shapes, text and PNG saving. Unlock Pro to get the rest back.</p>
+    </section>
+
+    <section data-view="feature" hidden>
+      <h1><span id="feature-name">This</span> is a Pro feature</h1>
+      <p class="lead">Your free trial has ended. Unlock Pro once and it is yours, along with everything below.</p>
     </section>
 
     <section data-view="paid" hidden>
@@ -39,13 +45,16 @@
 
     <div class="buy" id="buy" hidden>
       <ul class="features">
-        <li>Visible, full page, area and screen capture</li>
-        <li>Arrows, shapes, text, highlighter, steps and blur</li>
-        <li>PNG and JPEG export to any folder</li>
+        <li>Full page capture, stitched into one image</li>
+        <li>Screen and window capture, with a timer</li>
+        <li>Blur for passwords and personal details</li>
+        <li>Numbered steps for guides and bug reports</li>
+        <li>JPEG export with a quality slider</li>
         <li>Everything stays on your computer</li>
       </ul>
       <p class="price" id="price" hidden></p>
-      <button id="pay" class="primary">Unlock Pageshot</button>
+      <p class="muted" id="other-prices" hidden></p>
+      <button id="pay" class="primary">Unlock Pro</button>
       <button id="login" class="link">Already paid or given free access? Log in with your email</button>
       <p class="error" id="error" hidden></p>
     </div>

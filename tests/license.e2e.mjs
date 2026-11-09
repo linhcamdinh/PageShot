@@ -27,8 +27,8 @@ async function popupFooter() {
   return (await popup.locator('#plan').isHidden()) ? '(hidden)' : await popup.locator('#plan-text').textContent();
 }
 const tab = await sw.evaluate(async () => (await chrome.tabs.query({ url: 'http://localhost:8768/*' }))[0]);
-async function tryCapture() {
-  const next = ctx.waitForEvent('page', { timeout: 10000 });
+async function tryCapture(predicate = () => true) {
+  const next = ctx.waitForEvent('page', { predicate, timeout: 10000 });
   await popup.evaluate((tab) => chrome.runtime.sendMessage({ type: 'capture', mode: 'visible', tab }), tab);
   const p = await next; await p.waitForLoadState(); return p;
 }
@@ -43,11 +43,44 @@ console.log('day 6.5 footer:', await popupFooter());
 
 await setStorage({ trialStart: Date.now() - 8 * 864e5 });
 console.log('day 8 footer:', await popupFooter());
-await popup.screenshot({ path: path.join(out, 'popup-expired.png') });
-p = await tryCapture(); console.log('day 8 capture opens:', new URL(p.url()).pathname + new URL(p.url()).search);
-await p.waitForSelector('[data-view=expired]:not([hidden])'); await p.waitForTimeout(500);
-console.log('expired page buy visible:', await p.locator('#buy').isVisible());
-await p.screenshot({ path: path.join(out, 'expired.png'), fullPage: true });
+console.log('day 8 popup pro badges:', await popup.locator('.pro').count());
+await popup.screenshot({ path: path.join(out, 'popup-free.png') });
+
+// Free plan: visible capture still works; the first one also explains the free plan in a background tab.
+const ended = ctx.waitForEvent('page', { predicate: (pg) => pg.url().includes('reason=trial-ended'), timeout: 10000 }).catch(() => null);
+p = await tryCapture((pg) => !pg.url().includes('trial-ended'));
+const endedPage = await ended;
+console.log('day 8 visible capture opens:', new URL(p.url()).pathname);
+console.log('day 8 trial-ended page opened once:', !!endedPage);
+if (endedPage) {
+  await endedPage.waitForSelector('[data-view=free]:not([hidden])');
+  await endedPage.screenshot({ path: path.join(out, 'free.png'), fullPage: true });
+  await endedPage.close();
+}
+await p.waitForSelector('#upgrade-bar:not([hidden])');
+console.log('editor upgrade bar:', await p.locator('#upgrade-text').textContent());
+console.log('editor locked tools:', await p.locator('.locked').evaluateAll((els) => els.map((e) => e.dataset.tool || e.dataset.format).join(',')));
+await p.screenshot({ path: path.join(out, 'editor-free.png') });
+const blurUpsell = ctx.waitForEvent('page', { timeout: 10000 });
+await p.click('[data-tool=blur]');
+const bu = await blurUpsell; await bu.waitForSelector('[data-view=feature]:not([hidden])');
+console.log('blur click opens:', await bu.locator('[data-view=feature] h1').textContent());
+console.log('blur tool selected after click?', await p.locator('[data-tool=blur]').getAttribute('aria-pressed'));
+await bu.close(); await p.close();
+
+const p3 = await tryCapture();
+console.log('second free capture opens no extra trial-ended tab:', ctx.pages().filter((pg) => pg.url().includes('trial-ended')).length === 0);
+await p3.close();
+
+// Pro capture modes open the upgrade page instead.
+const full = ctx.waitForEvent('page', { timeout: 10000 });
+await popup.evaluate((tab) => chrome.runtime.sendMessage({ type: 'capture', mode: 'full', tab }), tab);
+p = await full; await p.waitForLoadState();
+console.log('day 8 full page capture opens:', new URL(p.url()).pathname + new URL(p.url()).search);
+await p.waitForSelector('[data-view=feature]:not([hidden])'); await p.waitForTimeout(500);
+console.log('feature page heading:', await p.locator('[data-view=feature] h1').textContent());
+console.log('feature page buy visible:', await p.locator('#buy').isVisible());
+await p.screenshot({ path: path.join(out, 'feature.png'), fullPage: true });
 
 // A later local value must not reset the earlier synced start.
 await sw.evaluate(async () => chrome.storage.local.set({ trialStart: Date.now() }));

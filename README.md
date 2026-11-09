@@ -38,11 +38,11 @@ Pick **PNG** (lossless, best for text and UI) or **JPEG** (smaller, with a quali
 
 Pageshot remembers these choices. After saving, a message shows the file name and size with a **Show in folder** link. Copy always puts a PNG on the clipboard.
 
-## Free trial and purchase
+## Free trial, free plan and Pro
 
-Every feature is free for 7 days from install, with no sign up. The popup shows the days left. When the trial ends, capturing opens the upgrade page instead, where people buy through [ExtensionPay](https://extensionpay.com) (Stripe checkout) or restore an earlier purchase. The paid status is cached, so Pageshot keeps working offline.
+Every feature is free for 7 days from install, with no sign up. The popup shows the days left, and the editor shows a reminder in the last two days. When the trial ends, Pageshot drops to the free plan: visible part and area capture, the basic markup tools and PNG keep working. Pro features (full page, screen or window, blur, numbered steps, JPEG) show a Pro badge and open the upgrade page when used, where people buy through [ExtensionPay](https://extensionpay.com) (Stripe checkout) or restore an earlier purchase. The first capture after the trial ends also opens a page explaining the free plan, once. The paid status is cached, so Pageshot keeps working offline.
 
-Set your ExtensionPay ID and the trial length in `extension/lib/config.js`. The price is set in the ExtensionPay dashboard. See [store/PUBLISHING.md](store/PUBLISHING.md) for the full launch checklist.
+Set your ExtensionPay ID, the trial length, the list of Pro features and an optional uninstall survey URL in `extension/lib/config.js`. The price is set in the ExtensionPay dashboard. See [store/PUBLISHING.md](store/PUBLISHING.md) for the full launch checklist.
 
 ## Try it
 

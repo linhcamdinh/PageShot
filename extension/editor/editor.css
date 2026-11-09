@@ -78,6 +78,15 @@ svg .filled { fill: currentColor; stroke: none; }
 
 .cropbar #crop-size { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 6px; }
 
+.upgrade-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 10px 12px 0; padding: 8px 8px 8px 14px; border-radius: 6px; background: var(--active); }
+.locked { position: relative; opacity: .55; }
+.locked:hover { opacity: .85; }
+.tool.locked::after, [data-format].locked::after {
+  content: 'PRO'; position: absolute; top: -4px; right: -6px; padding: 0 3px; border-radius: 3px;
+  font: 700 8px/12px system-ui, sans-serif; color: var(--on-accent); background: var(--accent);
+}
+/* The format switch clips overflow, so its badge sits inline. */
+[data-format].locked::after { position: static; margin-left: 5px; vertical-align: 1px; }
 .notice { margin: 10px 12px 0; padding: 10px 14px; border-radius: 6px; background: var(--notice-bg); }
 
 main { flex: 1; overflow: auto; padding: 24px; }

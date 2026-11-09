@@ -18,13 +18,25 @@ chrome.storage.session.get('lastError').then(({ lastError }) => {
 // Trial and purchase status in the footer.
 chrome.runtime.sendMessage({ type: 'status' }).then((status) => {
   if (!status || status.state === 'paid') return;
-  const expired = status.state === 'expired';
+  const free = status.state === 'free';
+  const endingSoon = status.state === 'trial' && status.daysLeft <= 2;
   $plan.hidden = false;
-  $plan.classList.toggle('expired', expired);
-  document.getElementById('plan-text').textContent = expired
-    ? 'Your free trial has ended.'
+  $plan.classList.toggle('urgent', endingSoon);
+  document.getElementById('plan-text').textContent = free
+    ? 'Free plan'
     : `Free trial: ${status.daysLeft === 1 ? '1 day' : `${status.daysLeft} days`} left`;
+  document.getElementById('plan-link').textContent = free ? 'Get Pro' : 'Unlock';
+  // On the free plan, mark the Pro capture modes instead of hiding them.
+  if (!status.pro) {
+    for (const b of buttons) if (b.dataset.pro !== undefined) b.querySelector('kbd').replaceWith(proBadge());
+  }
 });
+function proBadge() {
+  const badge = document.createElement('span');
+  badge.className = 'pro';
+  badge.textContent = 'Pro';
+  return badge;
+}
 document.getElementById('plan-link').addEventListener('click', (e) => {
   e.preventDefault();
   chrome.tabs.create({ url: chrome.runtime.getURL('upgrade/upgrade.html?reason=popup') });

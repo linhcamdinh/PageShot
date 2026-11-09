@@ -1,4 +1,5 @@
 import { getCapture } from '../lib/store.js';
+import { PRO_FEATURES } from '../lib/config.js';
 import {
   FONTS, bounds, drawAll, drawShape, flatten, fontString, hitTest, isBox, isLine, normBox, textLayout, translate,
 } from './shapes.js';
@@ -530,6 +531,7 @@ $('crop-cancel').addEventListener('click', cancelCrop);
 // ---------- tools and styles ----------
 
 function setTool(tool) {
+  if (!plan.pro && PRO_FEATURES[tool]) return openUpgrade(tool);
   if (state.editingText) finishText();
   if (state.crop && tool !== 'crop') cancelCrop();
   state.tool = tool;
@@ -712,6 +714,7 @@ function syncExportControls() {
 
 document.querySelectorAll('[data-format]').forEach((b) =>
   b.addEventListener('click', () => {
+    if (!plan.pro && PRO_FEATURES[b.dataset.format]) return openUpgrade(b.dataset.format);
     exportSettings.format = b.dataset.format;
     saveExportSettings();
     syncExportControls();
@@ -829,6 +832,51 @@ window.addEventListener('beforeunload', (e) => {
   if (state.historyIndex > 0 && state.savedIndex !== state.historyIndex) e.preventDefault();
 });
 
+// ---------- plan (trial, free, Pro) ----------
+
+// Assume Pro until the background answers, so paying and trial users never see a flash of locks.
+const plan = { pro: true, state: 'paid' };
+
+function openUpgrade(feature) {
+  const q = feature ? `reason=feature&feature=${feature}` : 'reason=editor';
+  chrome.tabs.create({ url: chrome.runtime.getURL(`upgrade/upgrade.html?${q}`) });
+}
+
+function applyPlan(status) {
+  if (!status) return;
+  Object.assign(plan, status);
+  for (const el of document.querySelectorAll('[data-tool], [data-format]')) {
+    const feature = el.dataset.tool || el.dataset.format;
+    if (!PRO_FEATURES[feature]) continue;
+    el.classList.toggle('locked', !plan.pro);
+    if (!plan.pro) el.title = `${PRO_FEATURES[feature]} is a Pro feature. Click to unlock.`;
+  }
+  if (!plan.pro) {
+    if (PRO_FEATURES[state.tool]) setTool('arrow');
+    if (PRO_FEATURES[exportSettings.format]) {
+      exportSettings.format = 'png';
+      syncExportControls();
+    }
+  }
+  const bar = $('upgrade-bar');
+  if (plan.state === 'free') {
+    $('upgrade-text').textContent = 'You are on the free plan. Pro adds full page and screen capture, blur, numbered steps and JPEG.';
+    bar.hidden = false;
+  } else if (plan.state === 'trial' && plan.daysLeft <= 2) {
+    const days = plan.daysLeft === 1 ? '1 day' : `${plan.daysLeft} days`;
+    $('upgrade-text').textContent = `Your free trial ends in ${days}. Unlock Pro to keep full page capture, blur and steps.`;
+    bar.hidden = false;
+  } else {
+    bar.hidden = true;
+  }
+}
+
+const refreshPlan = (refresh = false) =>
+  chrome.runtime.sendMessage({ type: 'status', refresh }).then(applyPlan).catch(() => {});
+$('upgrade-go').addEventListener('click', () => openUpgrade());
+// Coming back from the upgrade page after buying unlocks the tools without a reload.
+window.addEventListener('focus', () => plan.pro || refreshPlan(true));
+
 // ---------- startup ----------
 
 function showNotice(text) {
@@ -862,6 +910,7 @@ async function load() {
   state.historyIndex = 0;
   updateUndoButtons();
   setTool('arrow');
+  await refreshPlan();
 }
 
 window.pageshotEditor = state; // handy for debugging from DevTools

@@ -41,11 +41,9 @@ SAVE YOUR WAY
 PRIVATE BY DESIGN
 Your screenshots never leave your computer. Pageshot has no account, no cloud upload and no tracking.
 
-TRY IT FREE
-Every feature is free for 7 days with no sign up. After that, a one-time unlock keeps Pageshot working forever.
+FREE PLAN AND PRO
+Every feature is free for 7 days with no sign up. After that, Pageshot stays free for visible part and area capture with arrows, shapes, text and PNG saving. Pro adds full page and screen capture, blur, numbered steps and JPEG, with a one-time unlock.
 ```
-
-> If you choose a subscription instead of a one-time price, change the last line to match.
 
 **Graphic assets** (in `store/assets/`):
 

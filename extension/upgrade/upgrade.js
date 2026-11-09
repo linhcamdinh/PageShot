@@ -1,8 +1,10 @@
 import { extpay, getStatus, markPaid } from '../lib/license.js';
-import { TRIAL_DAYS } from '../lib/config.js';
+import { PRO_FEATURES, TRIAL_DAYS } from '../lib/config.js';
 
 const $ = (id) => document.getElementById(id);
-const reason = new URLSearchParams(location.search).get('reason');
+const params = new URLSearchParams(location.search);
+const reason = params.get('reason');
+const feature = PRO_FEATURES[params.get('feature')];
 
 function show(view) {
   document.querySelectorAll('[data-view]').forEach((el) => (el.hidden = el.dataset.view !== view));
@@ -12,7 +14,10 @@ function show(view) {
 async function refresh(options) {
   const status = await getStatus(options);
   if (status.state === 'paid') return show('paid');
-  if (status.state === 'expired') return show('expired');
+  if (status.state === 'free') {
+    if (feature) $('feature-name').textContent = feature;
+    return show(feature ? 'feature' : 'free');
+  }
   $('days-left').textContent = status.daysLeft === 1 ? '1 day' : `${status.daysLeft} days`;
   show(reason === 'welcome' ? 'welcome' : 'trial');
 }
@@ -25,12 +30,21 @@ function formatPrice(plan) {
   return `${amount}, one time`;
 }
 
+// Lead with the one-time price: one clear number converts better than a list of plans.
 async function loadPrice() {
   try {
     const plans = await extpay.getPlans();
     if (!plans?.length) return;
-    $('price').textContent = plans.map(formatPrice).join(' or ');
+    const lifetime = plans.find((p) => !p.interval || p.interval === 'once');
+    const lead = lifetime || plans[0];
+    const others = plans.filter((p) => p !== lead);
+    $('price').textContent = lifetime ? `${formatPrice(lead).replace(', one time', '')} once, yours forever` : formatPrice(lead);
     $('price').hidden = false;
+    if (others.length) {
+      $('other-prices').textContent = `Or ${others.map(formatPrice).join(' or ')}`;
+      $('other-prices').hidden = false;
+    }
+    if (lifetime) $('welcome-price').textContent = ` (${formatPrice(lead).replace(', one time', '')} once)`;
   } catch {
     // Price is optional on this page; the payment page always shows it.
   }

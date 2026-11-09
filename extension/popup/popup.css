@@ -35,6 +35,8 @@ kbd { font: 11px system-ui, sans-serif; color: var(--muted); }
 .error { margin: 0 12px 6px; padding: 8px 10px; border-radius: 6px; background: var(--error-bg); color: var(--error-fg); }
 .working { margin: 0 14px 12px; color: var(--muted); }
 .plan { display: flex; justify-content: space-between; gap: 8px; padding: 9px 14px; border-top: 1px solid var(--hover); color: var(--muted); font-size: 12px; }
-.plan.expired { color: var(--error-fg); background: var(--error-bg); border-top: 0; }
+.plan.urgent { color: var(--error-fg); background: var(--error-bg); border-top: 0; }
+.pro { font-size: 10px; font-weight: 700; letter-spacing: .03em; padding: 1px 6px; border-radius: 999px; color: #fff; background: var(--accent); }
+@media (prefers-color-scheme: dark) { .pro { color: #202124; } }
 .plan a { color: var(--accent); font-weight: 600; text-decoration: none; }
 .plan a:hover { text-decoration: underline; }
